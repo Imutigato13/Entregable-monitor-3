@@ -4,12 +4,12 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QH
 import sys
 
 class QTlogin(QWidget):
-    def __init__(self, login_respuesta):
+    def __init__(self, controlador):
         super().__init__()
-        self.login_respuesta = login_respuesta
-        self.QTprincipal()
+        self.controlador = controlador
+        self.QTlog()
 
-    def QTprincipal(self):
+    def QTlog(self):
         self.setWindowTitle("Login")
         self.display = QVBoxLayout()
 
@@ -32,16 +32,17 @@ class QTlogin(QWidget):
     def login(self):
         usuario = self.usuario_r.text()
         contraseña = self.contraseña_r.text()
-        if self.login_respuesta(usuario, contraseña):
+        if self.controlador.validacion(usuario, contraseña):
             self.close()
+            self.controlador.ventana_principal()
         else:
             QMessageBox.warning(self, "Error", "Usuario o contraseña incorrectos")
+        
 
 class QTprincipal(QMainWindow):
-    def __init__(self, modelo, logout_respuesta):
+    def __init__(self, controlador):
         super().__init__()
-        self.modelo = modelo
-        self.logout_respuesta = logout_respuesta
+        self.controlador = controlador
         self.QTprincipal()
 
     def QTprincipal(self):
@@ -98,7 +99,7 @@ class QTprincipal(QMainWindow):
 
     def cargar_pacientes(self):
         self.tabla.setRowCount(0)
-        pacientes = self.modelo.get_pacientes()
+        pacientes = self.controlador.get_pacientes()
         for paciente in pacientes:
             self.tabla_pacientes(paciente)
 
@@ -107,23 +108,29 @@ class QTprincipal(QMainWindow):
         apellido = self.apellido.text()
         edad = self.edad.text()
         cedula = self.cedula.text()
-
         if not (nombre and apellido and edad and cedula):
             QMessageBox.warning(self, "Error", "Todos los campos son obligatorios")
             return
+        else:
+            paciente = self.controlador.agregar_paciente(nombre,apellido,edad,cedula)
+            if paciente == False:
+                QMessageBox.warning(self, "Error", str(ValueError('Cedula ya registrada')))
+            else:
+                self.nombre.clear()
+                self.apellido.clear()
+                self.edad.clear()
+                self.cedula.clear()
+                QMessageBox.warning(self, "Operacion exitosa", "Se agrego al paciente correctamente")
+                self.tabla_pacientes(paciente)
 
-        try:
-            paciente = {
-                'nombre': nombre,
-                'apellido': apellido,
-                'edad': edad,
-                'cedula': cedula
-            }
-            self.modelo.agregar_paciente(paciente)
+    def buscar_paciente(self):
+        busqueda = self.busqueda_r.text()
+        encuentro = self.controlador.buscar_paciente(busqueda)
+        self.tabla.setRowCount(0)
+        for paciente in encuentro:
             self.tabla_pacientes(paciente)
-        except ValueError as e:
-            QMessageBox.warning(self, "Error", str(e))
-
+        self.display.addWidget(self.tabla)
+    
     def tabla_pacientes(self, paciente):
         posicion = self.tabla.rowCount()
         self.tabla.insertRow(posicion)
@@ -139,17 +146,11 @@ class QTprincipal(QMainWindow):
         return boton
 
     def eliminar_paciente(self, cedula):
-        self.modelo.eliminar_paciente(cedula)
+        self.controlador.eliminar_paciente(cedula)
         self.cargar_pacientes()
-
-    def buscar_paciente(self):
-        busqueda = self.busqueda_r.text()
-        encuentro = self.modelo.buscar_paciente(busqueda)
+        self.tabla.clearContents()
         self.tabla.setRowCount(0)
-        for paciente in encuentro:
-            self.tabla_pacientes(paciente)
-        self.display.addWidget(self.tabla)
 
     def logout(self):
-        self.logout_respuesta()
+        self.controlador.logout()
         self.close()

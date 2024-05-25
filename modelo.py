@@ -4,6 +4,12 @@ class Pacientes:
     def __init__(self, ruta='data.json'):
         self.ruta = ruta
         self.cargar_pacientes()
+    
+    def validacion(self,usuario,contraseña):
+        if usuario == 'admin123' and contraseña == 'contraseña123':
+            return True
+        else:
+            return False
 
     def cargar_pacientes(self):
         try:
@@ -21,7 +27,7 @@ class Pacientes:
 
     def agregar_paciente(self, paciente):
         if any(p['cedula'] == paciente['cedula'] for p in self.pacientes):
-            raise ValueError("Cedula ya registrada")
+            raise ValueError
         self.pacientes.append(paciente)
         self.guardar_pacientes()
 
@@ -34,4 +40,4 @@ class Pacientes:
         return [p for p in self.pacientes if p['nombre'].lower().startswith(busqueda)]
 
     def get_pacientes(self):
-        return self.pacientes
+        return self.pacientes 
