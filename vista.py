@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                              QPushButton, QLineEdit, QLabel, QTableWidget, QTableWidgetItem,
-                             QMessageBox)
+                             QMessageBox, QApplication)
 import sys
 
 class QTlogin(QWidget):
@@ -120,7 +120,7 @@ class QTprincipal(QMainWindow):
                 self.apellido.clear()
                 self.edad.clear()
                 self.cedula.clear()
-                QMessageBox.warning(self, "Operacion exitosa", "Se agrego al paciente correctamente")
+                QMessageBox.information(self, "Operacion exitosa", "Se agrego al paciente correctamente")
                 self.tabla_pacientes(paciente)
 
     def buscar_paciente(self):

@@ -1,6 +1,5 @@
 from modelo import *
 from vista import *
-from PyQt5.QtWidgets import QApplication
 
 class Controlador:
     def __init__(self) -> None:
